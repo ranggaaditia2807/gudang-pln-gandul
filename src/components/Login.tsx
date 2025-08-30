@@ -102,7 +102,6 @@ const Login: React.FC = () => {
         </form>
 
         <div className="mt-6 pt-4 border-t">
-          <h3 className="text-sm font-medium mb-3">Login Cepat (Testing):</h3>
           <div className="space-y-2">
             <Button 
               variant="outline" 
