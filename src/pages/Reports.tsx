@@ -2,7 +2,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, BarChart3, Calendar, TrendingUp } from "lucide-react";
+import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Eye } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const reportTypes = [
   {
@@ -36,6 +38,53 @@ const reportTypes = [
 ];
 
 export default function Reports() {
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
+
+  const handleGenerateReport = async (reportType: string) => {
+    setIsGenerating(reportType);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setIsGenerating(null);
+    toast.success(`Laporan ${reportType} berhasil dibuat!`);
+  };
+
+  const handleViewReport = (reportName: string) => {
+    toast.info(`Membuka detail laporan: ${reportName}`);
+    // In a real app, this would open a modal or navigate to detail page
+  };
+
+  const handleExportReport = (reportName: string) => {
+    toast.success(`Mengexport laporan: ${reportName}`);
+    // Simulate file download
+    const element = document.createElement('a');
+    const file = new Blob([`Data laporan: ${reportName}`], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = `${reportName.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleExportAll = () => {
+    toast.success("Mengexport semua laporan...");
+    // Simulate exporting all reports
+    const element = document.createElement('a');
+    const file = new Blob(['Data semua laporan'], { type: 'text/plain' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'semua_laporan.txt';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  };
+
+  const handleCreateSchedule = () => {
+    toast.info("Fitur buat jadwal laporan akan segera hadir!");
+  };
+
+  const handleCreateTemplate = () => {
+    toast.info("Fitur buat template laporan akan segera hadir!");
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -45,7 +94,7 @@ export default function Reports() {
             Generate dan kelola laporan gudang
           </p>
         </div>
-        <Button>
+        <Button onClick={handleExportAll}>
           <Download className="mr-2 h-4 w-4" />
           Export Semua
         </Button>
@@ -65,9 +114,14 @@ export default function Reports() {
                 <CardDescription>{report.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                <Button className="w-full" variant="outline">
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => handleGenerateReport(report.title)}
+                  disabled={isGenerating === report.title}
+                >
                   <FileText className="mr-2 h-4 w-4" />
-                  Generate Laporan
+                  {isGenerating === report.title ? "Membuat..." : "Generate Laporan"}
                 </Button>
               </CardContent>
             </Card>
@@ -110,10 +164,19 @@ export default function Reports() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewReport(report.name)}
+                    >
+                      <Eye className="mr-1 h-3 w-3" />
                       Lihat
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleExportReport(report.name)}
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>
@@ -131,7 +194,7 @@ export default function Reports() {
               <p className="text-muted-foreground mb-4">
                 Atur laporan otomatis untuk dibuat secara berkala
               </p>
-              <Button>
+              <Button onClick={handleCreateSchedule}>
                 <Plus className="mr-2 h-4 w-4" />
                 Buat Jadwal Laporan
               </Button>
@@ -147,7 +210,7 @@ export default function Reports() {
               <p className="text-muted-foreground mb-4">
                 Kelola template untuk mempercepat pembuatan laporan
               </p>
-              <Button>
+              <Button onClick={handleCreateTemplate}>
                 <Plus className="mr-2 h-4 w-4" />
                 Buat Template Baru
               </Button>
