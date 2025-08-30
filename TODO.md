@@ -1,15 +1,13 @@
-# TODO - Perbaikan Error 404 main.tsx
+# TODO - Perbaikan Fitur Transaksi
 
-- [x] Periksa file src/main.tsx, sudah ada dan benar.
-- [x] Periksa index.html, ubah script src dari /src/main.tsx ke src/main.tsx agar path relatif.
-- [x] Periksa vite.config.ts, base path sudah sesuai dengan basename React Router.
-- [x] Jalankan npm run dev, server berjalan tanpa error 404 main.tsx.
-- [ ] Jalankan build, periksa folder dist, saat ini kosong.
-- [ ] Periksa error build di terminal lokal karena output build tidak muncul.
-- [ ] Jika build berhasil, deploy dan cek apakah error 404 masih muncul.
-- [ ] Jika error masih muncul, periksa konfigurasi server hosting.
+- [x] Buat komponen TransactionForm.tsx untuk form tambah/edit transaksi.
+- [x] Update Transactions.tsx untuk menambahkan dialog modal untuk transaksi baru.
+- [x] Tambahkan tombol Edit dan Detail pada setiap item transaksi.
+- [x] Tambahkan state management untuk dialog dan form.
+- [x] Test fungsionalitas tambah, edit, dan detail transaksi.
+- [x] Commit perubahan ke Git dan deploy jika diperlukan.
 
 Langkah selanjutnya:
-- Periksa output error build di terminal lokal.
-- Pastikan build menghasilkan file di folder dist.
-- Jika perlu, perbaiki konfigurasi build atau dependencies.
+- Update Transactions.tsx dengan integrasi TransactionForm.
+- Tambahkan tombol-tombol yang diperlukan.
+- Pastikan semua fitur berfungsi dengan baik.

@@ -1,25 +1,25 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, ArrowUp, ArrowDown, Calendar } from "lucide-react";
+import { Plus, ArrowUp, ArrowDown, Calendar, Edit, Eye } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
+import TransactionForm from "@/components/TransactionForm";
 
-const sampleTransactions = [
+const sampleTransactionsInitial = [
   {
     id: "TXN001",
-    type: "in",
-    item: "Kabel XLPE 150mm", 
+    type: "in" as const,
+    item: "Kabel XLPE 150mm",
     quantity: 20,
     date: "2024-01-15",
     operator: "Ahmad Rizki",
     notes: "Pengadaan rutin Q1"
   },
   {
-    id: "TXN002", 
-    type: "out",
+    id: "TXN002",
+    type: "out" as const,
     item: "Isolator Keramik 20kV",
     quantity: 5,
     date: "2024-01-14",
@@ -28,7 +28,7 @@ const sampleTransactions = [
   },
   {
     id: "TXN003",
-    type: "in", 
+    type: "in" as const,
     item: "Trafo Distribusi 400kVA",
     quantity: 2,
     date: "2024-01-13",
@@ -37,8 +37,8 @@ const sampleTransactions = [
   },
   {
     id: "TXN004",
-    type: "out",
-    item: "Panel Distribusi 20kV", 
+    type: "out" as const,
+    item: "Panel Distribusi 20kV",
     quantity: 3,
     date: "2024-01-12",
     operator: "Maya Sari",
@@ -49,6 +49,12 @@ const sampleTransactions = [
 export default function Transactions() {
   const { user, hasPermission } = useUser();
   const canEdit = user && hasPermission('owner');
+
+  const [sampleTransactions, setSampleTransactions] = useState(sampleTransactionsInitial);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState<"add" | "edit">("add");
+  const [selectedTransaction, setSelectedTransaction] = useState<typeof sampleTransactionsInitial[0] | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const getTransactionIcon = (type: string) => {
     return type === "in" ? (
@@ -70,6 +76,44 @@ export default function Transactions() {
     );
   };
 
+  const openAddForm = () => {
+    setFormMode("add");
+    setSelectedTransaction(null);
+    setIsFormOpen(true);
+  };
+
+  const openEditForm = (transaction: typeof sampleTransactionsInitial[0]) => {
+    setFormMode("edit");
+    setSelectedTransaction(transaction);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setSelectedTransaction(null);
+  };
+
+  const saveTransaction = (transaction: Omit<typeof sampleTransactionsInitial[0], 'id'>) => {
+    if (formMode === "add") {
+      const newTransaction = { ...transaction, id: `TXN${(sampleTransactions.length + 1).toString().padStart(3, "0")}` } as typeof sampleTransactionsInitial[0];
+      setSampleTransactions(prev => [newTransaction, ...prev]);
+    } else if (formMode === "edit" && selectedTransaction) {
+      setSampleTransactions(prev =>
+        prev.map(t => (t.id === selectedTransaction.id ? { ...transaction, id: selectedTransaction.id } as typeof sampleTransactionsInitial[0] : t))
+      );
+    }
+  };
+
+  const openDetail = (transaction: typeof sampleTransactionsInitial[0]) => {
+    setSelectedTransaction(transaction);
+    setIsDetailOpen(true);
+  };
+
+  const closeDetail = () => {
+    setSelectedTransaction(null);
+    setIsDetailOpen(false);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -80,7 +124,7 @@ export default function Transactions() {
           </p>
         </div>
         {canEdit && (
-          <Button>
+          <Button onClick={openAddForm}>
             <Plus className="mr-2 h-4 w-4" />
             Transaksi Baru
           </Button>
@@ -165,6 +209,18 @@ export default function Transactions() {
                     <div className="text-lg font-semibold">
                       {transaction.quantity} unit
                     </div>
+                    {canEdit && (
+                      <div className="flex justify-end space-x-2 mt-2">
+                        <Button size="sm" variant="outline" onClick={() => openDetail(transaction)}>
+                          <Eye className="h-4 w-4" />
+                          Detail
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => openEditForm(transaction)}>
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -202,6 +258,18 @@ export default function Transactions() {
                       <div className="text-lg font-semibold">
                         {transaction.quantity} unit
                       </div>
+                      {canEdit && (
+                        <div className="flex justify-end space-x-2 mt-2">
+                          <Button size="sm" variant="outline" onClick={() => openDetail(transaction)}>
+                            <Eye className="h-4 w-4" />
+                            Detail
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openEditForm(transaction)}>
+                            <Edit className="h-4 w-4" />
+                            Edit
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -239,6 +307,18 @@ export default function Transactions() {
                       <div className="text-lg font-semibold">
                         {transaction.quantity} unit
                       </div>
+                      {canEdit && (
+                        <div className="flex justify-end space-x-2 mt-2">
+                          <Button size="sm" variant="outline" onClick={() => openDetail(transaction)}>
+                            <Eye className="h-4 w-4" />
+                            Detail
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openEditForm(transaction)}>
+                            <Edit className="h-4 w-4" />
+                            Edit
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -246,6 +326,32 @@ export default function Transactions() {
             ))}
         </TabsContent>
       </Tabs>
+
+      <TransactionForm
+        isOpen={isFormOpen}
+        onClose={closeForm}
+        onSave={saveTransaction}
+        transaction={selectedTransaction || undefined}
+        mode={formMode}
+      />
+
+      {isDetailOpen && selectedTransaction && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full">
+            <h2 className="text-xl font-bold mb-4">Detail Transaksi</h2>
+            <p><strong>ID:</strong> {selectedTransaction.id}</p>
+            <p><strong>Tipe:</strong> {selectedTransaction.type === "in" ? "Barang Masuk" : "Barang Keluar"}</p>
+            <p><strong>Barang:</strong> {selectedTransaction.item}</p>
+            <p><strong>Jumlah:</strong> {selectedTransaction.quantity} unit</p>
+            <p><strong>Tanggal:</strong> {selectedTransaction.date}</p>
+            <p><strong>Operator:</strong> {selectedTransaction.operator}</p>
+            <p><strong>Catatan:</strong> {selectedTransaction.notes}</p>
+            <div className="mt-4 flex justify-end">
+              <Button variant="outline" onClick={() => setIsDetailOpen(false)}>Tutup</Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
