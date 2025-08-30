@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://ranggaaditia2807.github.io/gandul-gudang-sentosa",
+  "homepage": "https://ranggaaditia2807.github.io/gandul-pln-gandul",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
