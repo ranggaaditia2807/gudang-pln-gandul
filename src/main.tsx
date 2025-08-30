@@ -7,7 +7,7 @@ import { UserProvider } from "./contexts/UserContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/gudang-pln-gandul/">
       <UserProvider>
         <App />
       </UserProvider>
