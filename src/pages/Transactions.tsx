@@ -6,54 +6,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, ArrowUp, ArrowDown, Calendar, Edit, Eye } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import TransactionForm from "@/components/TransactionForm";
-
-const sampleTransactionsInitial = [
-  {
-    id: "TXN001",
-    type: "in" as const,
-    item: "Kabel XLPE 150mm",
-    quantity: 20,
-    date: "2024-01-15",
-    operator: "Ahmad Rizki",
-    notes: "Pengadaan rutin Q1"
-  },
-  {
-    id: "TXN002",
-    type: "out" as const,
-    item: "Isolator Keramik 20kV",
-    quantity: 5,
-    date: "2024-01-14",
-    operator: "Siti Nurhaliza",
-    notes: "Proyek Gardu Induk Cibinong"
-  },
-  {
-    id: "TXN003",
-    type: "in" as const,
-    item: "Trafo Distribusi 400kVA",
-    quantity: 2,
-    date: "2024-01-13",
-    operator: "Budi Santoso",
-    notes: "Pengadaan khusus"
-  },
-  {
-    id: "TXN004",
-    type: "out" as const,
-    item: "Panel Distribusi 20kV",
-    quantity: 3,
-    date: "2024-01-12",
-    operator: "Maya Sari",
-    notes: "Maintenance rutin"
-  }
-];
+import { useTransactions } from "@/contexts/TransactionContext";
 
 export default function Transactions() {
   const { user, hasPermission } = useUser();
   const canEdit = user && hasPermission('owner');
 
-  const [sampleTransactions, setSampleTransactions] = useState(sampleTransactionsInitial);
+  const {
+    transactions,
+    addTransaction,
+    updateTransaction,
+  } = useTransactions();
+
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<"add" | "edit">("add");
-  const [selectedTransaction, setSelectedTransaction] = useState<typeof sampleTransactionsInitial[0] | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = useState<typeof transactions[0] | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const getTransactionIcon = (type: string) => {
@@ -82,7 +49,7 @@ export default function Transactions() {
     setIsFormOpen(true);
   };
 
-  const openEditForm = (transaction: typeof sampleTransactionsInitial[0]) => {
+  const openEditForm = (transaction: typeof transactions[0]) => {
     setFormMode("edit");
     setSelectedTransaction(transaction);
     setIsFormOpen(true);
@@ -93,18 +60,15 @@ export default function Transactions() {
     setSelectedTransaction(null);
   };
 
-  const saveTransaction = (transaction: Omit<typeof sampleTransactionsInitial[0], 'id'>) => {
+  const saveTransaction = (transaction: Omit<typeof transactions[0], 'id'>) => {
     if (formMode === "add") {
-      const newTransaction = { ...transaction, id: `TXN${(sampleTransactions.length + 1).toString().padStart(3, "0")}` } as typeof sampleTransactionsInitial[0];
-      setSampleTransactions(prev => [newTransaction, ...prev]);
+      addTransaction(transaction);
     } else if (formMode === "edit" && selectedTransaction) {
-      setSampleTransactions(prev =>
-        prev.map(t => (t.id === selectedTransaction.id ? { ...transaction, id: selectedTransaction.id } as typeof sampleTransactionsInitial[0] : t))
-      );
+      updateTransaction(selectedTransaction.id, transaction);
     }
   };
 
-  const openDetail = (transaction: typeof sampleTransactionsInitial[0]) => {
+  const openDetail = (transaction: typeof transactions[0]) => {
     setSelectedTransaction(transaction);
     setIsDetailOpen(true);
   };
@@ -139,7 +103,7 @@ export default function Transactions() {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{transactions.length}</div>
             <p className="text-xs text-muted-foreground">
               Transaksi
             </p>
@@ -152,9 +116,12 @@ export default function Transactions() {
             <ArrowUp className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">8</div>
+            <div className="text-2xl font-bold">
+              {transactions.filter(t => t.type === "in").reduce((sum, t) => sum + t.quantity, 0)}
+            </div>
             <p className="text-xs text-success">
-              +2 dari kemarin
+              {/* TODO: Tambahkan perbandingan dengan hari sebelumnya */}
+              +0 dari kemarin
             </p>
           </CardContent>
         </Card>
@@ -165,9 +132,12 @@ export default function Transactions() {
             <ArrowDown className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">4</div>
+            <div className="text-2xl font-bold">
+              {transactions.filter(t => t.type === "out").reduce((sum, t) => sum + t.quantity, 0)}
+            </div>
             <p className="text-xs text-muted-foreground">
-              -1 dari kemarin
+              {/* TODO: Tambahkan perbandingan dengan hari sebelumnya */}
+              -0 dari kemarin
             </p>
           </CardContent>
         </Card>
@@ -182,7 +152,7 @@ export default function Transactions() {
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
-          {sampleTransactions.map((transaction) => (
+          {transactions.map((transaction) => (
             <Card key={transaction.id} className="border-0 shadow-soft">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -229,7 +199,7 @@ export default function Transactions() {
         </TabsContent>
 
         <TabsContent value="in" className="space-y-4">
-          {sampleTransactions
+          {transactions
             .filter(t => t.type === "in")
             .map((transaction) => (
               <Card key={transaction.id} className="border-0 shadow-soft">
@@ -278,7 +248,7 @@ export default function Transactions() {
         </TabsContent>
 
         <TabsContent value="out" className="space-y-4">
-          {sampleTransactions
+          {transactions
             .filter(t => t.type === "out")
             .map((transaction) => (
               <Card key={transaction.id} className="border-0 shadow-soft">

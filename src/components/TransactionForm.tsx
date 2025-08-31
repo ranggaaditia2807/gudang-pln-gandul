@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useWarehouse } from "@/contexts/WarehouseContext";
 
 interface Transaction {
   id?: string;
@@ -25,6 +26,8 @@ interface TransactionFormProps {
 }
 
 export default function TransactionForm({ isOpen, onClose, onSave, transaction, mode }: TransactionFormProps) {
+  const { items: warehouseItems } = useWarehouse();
+
   const [formData, setFormData] = useState<Omit<Transaction, 'id'>>(
     transaction ? {
       type: transaction.type,
@@ -87,14 +90,23 @@ export default function TransactionForm({ isOpen, onClose, onSave, transaction, 
               <Label htmlFor="item" className="text-right">
                 Barang
               </Label>
-              <Input
-                id="item"
-                value={formData.item}
-                onChange={(e) => handleChange("item", e.target.value)}
-                className="col-span-3"
-                placeholder="Nama barang"
-                required
-              />
+              <Select value={formData.item} onValueChange={(value: string) => handleChange("item", value)}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Pilih barang dari gudang" />
+                </SelectTrigger>
+                <SelectContent>
+                  {warehouseItems.map((item) => (
+                    <SelectItem key={item.id} value={item.name}>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{item.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ID: {item.id} • Stok: {item.stock} • Lokasi: {item.location}
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="quantity" className="text-right">

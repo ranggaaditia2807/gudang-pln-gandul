@@ -4,6 +4,8 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css"; // pastikan Tailwind / CSS sudah import
 import { UserProvider } from "./contexts/UserContext";
+import { TransactionProvider } from "./contexts/TransactionContext";
+import { WarehouseProvider } from "./contexts/WarehouseContext";
 
 // Single Page Apps for GitHub Pages
 // https://github.com/rafgraph/spa-github-pages
@@ -29,7 +31,11 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter basename="/gudang-pln-gandul/">
       <UserProvider>
-        <App />
+        <TransactionProvider>
+          <WarehouseProvider>
+            <App />
+          </WarehouseProvider>
+        </TransactionProvider>
       </UserProvider>
     </BrowserRouter>
   </React.StrictMode>
