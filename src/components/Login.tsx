@@ -106,7 +106,7 @@ const Login: React.FC = () => {
             <Button 
               variant="outline" 
               className="w-full justify-start"
-              onClick={() => handleQuickLogin('owner@gudang.com')}
+              onClick={() => handleQuickLogin('admin@gudang.com')}
             >
               Login sebagai Pemilik (Owner)
             </Button>
