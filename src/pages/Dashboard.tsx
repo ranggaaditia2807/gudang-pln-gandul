@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Download, RefreshCw, TrendingUp, Package, AlertTriangle } from "lucide-react";
+import * as XLSX from 'xlsx';
+import { toast } from "sonner";
 
 const monthlyData = [
   { name: 'Jan', masuk: 65, keluar: 45 },
@@ -22,6 +24,29 @@ const categoryData = [
 ];
 
 export default function Dashboard() {
+  const handleExportDashboard = () => {
+    const workbook = XLSX.utils.book_new();
+
+    // Sheet 1: Monthly Data
+    const monthlySheet = XLSX.utils.json_to_sheet(monthlyData);
+    XLSX.utils.book_append_sheet(workbook, monthlySheet, 'Tren Bulanan');
+
+    // Sheet 2: Category Data
+    const categorySheet = XLSX.utils.json_to_sheet(categoryData);
+    XLSX.utils.book_append_sheet(workbook, categorySheet, 'Kategori Barang');
+
+    // Sheet 3: Summary Data
+    const summaryData = [
+      { Metric: 'Kategori Barang', Value: 24, Unit: 'kategori' },
+      { Metric: 'Item Kritis', Value: 7, Unit: 'item' }
+    ];
+    const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(workbook, summarySheet, 'Ringkasan');
+
+    XLSX.writeFile(workbook, 'dashboard_gudang_pln.xlsx');
+    toast.success('Dashboard berhasil diexport ke Excel!');
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -36,7 +61,7 @@ export default function Dashboard() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Refresh
           </Button>
-          <Button size="sm">
+          <Button size="sm" onClick={handleExportDashboard}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -44,18 +69,7 @@ export default function Dashboard() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-0 shadow-soft">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Nilai Inventaris</CardTitle>
-            <TrendingUp className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Rp 2.4M</div>
-            <p className="text-xs text-success">+8.2% dari bulan lalu</p>
-          </CardContent>
-        </Card>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="border-0 shadow-soft">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Kategori Barang</CardTitle>

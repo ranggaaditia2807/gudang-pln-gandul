@@ -29,7 +29,7 @@ import { WarehouseProvider } from "./contexts/WarehouseContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <BrowserRouter basename="/gudang-pln-gandul/">
+    <BrowserRouter basename={window.location.hostname.includes('github.io') ? '/gudang-pln-gandul/' : '/'}>
       <UserProvider>
         <TransactionProvider>
           <WarehouseProvider>
