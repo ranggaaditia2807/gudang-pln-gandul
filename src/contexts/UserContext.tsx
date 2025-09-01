@@ -21,7 +21,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Mock users for demonstration
 const mockUsers: User[] = [
-  { id: '1', name: 'Pemilik Gudang', role: 'owner', email: 'owner@gudang.com' },
+  { id: '1', name: 'Administrator', role: 'owner', email: 'admin@gmail.com' },
   { id: '2', name: 'Staff Gudang', role: 'user', email: 'user@gudang.com' }
 ];
 
@@ -44,11 +44,19 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = (email: string, password: string): boolean => {
     // Simple mock login - in real app, this would call an API
     const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser && password === 'password123') { // Mock password
-      setUser(foundUser);
-      // Save user to localStorage
-      localStorage.setItem('user', JSON.stringify(foundUser));
-      return true;
+    if (foundUser) {
+      // Special handling for admin account
+      if (email === 'admin@gmail.com' && password === 'admingudang1') {
+        setUser(foundUser);
+        localStorage.setItem('user', JSON.stringify(foundUser));
+        return true;
+      }
+      // Default password for other accounts
+      if (password === 'password123') {
+        setUser(foundUser);
+        localStorage.setItem('user', JSON.stringify(foundUser));
+        return true;
+      }
     }
     return false;
   };

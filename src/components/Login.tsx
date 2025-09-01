@@ -25,7 +25,7 @@ const Login: React.FC = () => {
         navigate('/'); // Redirect to home page after login
       }, 100);
     } else {
-      setError('Email atau password salah. Gunakan "owner@gudang.com" atau "user@gudang.com" dengan password "password123"');
+      setError('Email atau password salah. Gunakan "admin@gmail.com" atau "user@gudang.com" dengan password masing-masing');
     }
   };
 
@@ -104,12 +104,21 @@ const Login: React.FC = () => {
         <div className="mt-6 pt-4 border-t">
           <h3 className="text-sm font-medium mb-3">Login Cepat (Testing):</h3>
           <div className="space-y-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
-              onClick={() => handleQuickLogin('owner@gudang.com')}
+              onClick={() => {
+                setEmail('admin@gmail.com');
+                setPassword('admingudang1');
+                if (login('admin@gmail.com', 'admingudang1')) {
+                  setError('');
+                  setTimeout(() => {
+                    navigate('/');
+                  }, 100);
+                }
+              }}
             >
-              Login sebagai Pemilik (Owner)
+              Login sebagai Administrator
             </Button>
             <Button 
               variant="outline" 
