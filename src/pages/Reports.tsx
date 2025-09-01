@@ -2,11 +2,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Eye, Package, ArrowUp, ArrowDown } from "lucide-react";
-import { useState } from "react";
+import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Eye, Package, ArrowUp, ArrowDown, Printer } from "lucide-react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { useTransactions } from "@/contexts/TransactionContext";
 import { useWarehouse } from "@/contexts/WarehouseContext";
+import * as XLSX from 'xlsx';
+import { useReactToPrint } from 'react-to-print';
 
 const reportTypes = [
   {
@@ -43,6 +45,11 @@ export default function Reports() {
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = useReactToPrint({
+    contentRef: printRef,
+  });
 
   const {
     transactions,
@@ -109,37 +116,14 @@ export default function Reports() {
 
   const handleExportReport = (reportName: string) => {
     const reportData = selectedReport || { title: reportName, data: [] };
-    const csvContent = generateCSVContent(reportData);
-    const element = document.createElement('a');
-    const file = new Blob([csvContent], { type: 'text/csv' });
-    element.href = URL.createObjectURL(file);
-    element.download = `${reportName.replace(/\s+/g, '_')}.csv`;
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    const worksheet = XLSX.utils.json_to_sheet(reportData.data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Laporan');
+    XLSX.writeFile(workbook, `${reportName.replace(/\s+/g, '_')}.xlsx`);
     toast.success(`Mengexport laporan: ${reportName}`);
   };
 
-  const generateCSVContent = (reportData: any) => {
-    if (reportData.type === 'inventory') {
-      const headers = 'Nama Barang,Stok Saat Ini,Total Masuk,Total Keluar,Terakhir Update\n';
-      const rows = reportData.data.map((item: any) =>
-        `${item.name},${item.currentStock},${item.totalIn},${item.totalOut},${item.lastUpdated}`
-      ).join('\n');
-      return headers + rows;
-    } else if (reportData.type === 'transactions') {
-      const headers = 'ID,Tipe,Barang,Jumlah,Tanggal,Operator,Catatan\n';
-      const rows = reportData.data.map((t: any) =>
-        `${t.id},${t.type},${t.item},${t.quantity},${t.date},${t.operator},"${t.notes}"`
-      ).join('\n');
-      return headers + rows;
-    } else if (reportData.type === 'monthly') {
-      const headers = 'Total Masuk,Total Keluar,Perubahan Bersih,Jumlah Transaksi\n';
-      const data = reportData.data;
-      return headers + `${data.totalIn},${data.totalOut},${data.netChange},${data.transactions.length}`;
-    }
-    return 'Data laporan tidak tersedia';
-  };
+
 
   const handleExportAll = () => {
     const allReports = {
@@ -148,24 +132,18 @@ export default function Reports() {
       monthly: getMonthlyReport(new Date().getMonth() + 1 + '', new Date().getFullYear() + '')
     };
 
-    const csvContent = `
-INVENTARIS
-${generateCSVContent({ type: 'inventory', data: allReports.inventory })}
+    const workbook = XLSX.utils.book_new();
 
-TRANSAKSI
-${generateCSVContent({ type: 'transactions', data: allReports.transactions })}
+    const inventorySheet = XLSX.utils.json_to_sheet(allReports.inventory);
+    XLSX.utils.book_append_sheet(workbook, inventorySheet, 'Inventaris');
 
-BULANAN
-${generateCSVContent({ type: 'monthly', data: allReports.monthly })}
-    `;
+    const transactionsSheet = XLSX.utils.json_to_sheet(allReports.transactions);
+    XLSX.utils.book_append_sheet(workbook, transactionsSheet, 'Transaksi');
 
-    const element = document.createElement('a');
-    const file = new Blob([csvContent], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'semua_laporan.txt';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
+    const monthlySheet = XLSX.utils.json_to_sheet([allReports.monthly]);
+    XLSX.utils.book_append_sheet(workbook, monthlySheet, 'Bulanan');
+
+    XLSX.writeFile(workbook, 'semua_laporan.xlsx');
     toast.success("Mengexport semua laporan...");
   };
 
@@ -395,25 +373,34 @@ ${generateCSVContent({ type: 'monthly', data: allReports.monthly })}
             <div className="flex items-center justify-between p-6 border-b">
               <h2 className="text-xl font-bold">{selectedReport.title}</h2>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleExportReport(selectedReport.title)}
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsReportModalOpen(false)}
-                >
-                  Tutup
-                </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => handleExportReport(selectedReport.title)}
+      >
+        <Download className="mr-2 h-4 w-4" />
+        Export
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handlePrint}
+        className="ml-2"
+      >
+        <Printer className="mr-2 h-4 w-4" />
+        Print
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsReportModalOpen(false)}
+      >
+        Tutup
+      </Button>
               </div>
             </div>
 
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]" ref={printRef}>
               {selectedReport.type === 'inventory' && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
