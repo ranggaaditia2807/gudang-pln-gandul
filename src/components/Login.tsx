@@ -25,14 +25,16 @@ const Login: React.FC = () => {
         navigate('/'); // Redirect to home page after login
       }, 100);
     } else {
-      setError('Email atau password salah. Gunakan "admin@gmail.com" atau "user@gudang.com" dengan password masing-masing');
+      setError('Email atau password salah. Gunakan "admin@gmail.com" (password: admingudang1) atau "user@gudang.com" (password: password123)');
     }
   };
 
-  const handleQuickLogin = (testEmail: string) => {
+const handleQuickLogin = (testEmail: string) => {
     setEmail(testEmail);
-    setPassword('password123');
-    if (login(testEmail, 'password123')) {
+    // Set password based on email
+    const quickPassword = testEmail === 'admin@gmail.com' ? 'admingudang1' : 'password123';
+    setPassword(quickPassword);
+    if (login(testEmail, quickPassword)) {
       setError('');
       setTimeout(() => {
         navigate('/'); // Redirect after quick login
