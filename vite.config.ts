@@ -16,4 +16,7 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
     open: true
   },
+  build: {
+    outDir: 'docs',
+  },
 }));

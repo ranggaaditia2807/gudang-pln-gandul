@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-export type UserRole = 'owner' | 'user';
+export type UserRole = 'admin' | 'user';
 
 export interface User {
   id: string;
@@ -21,7 +21,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Mock users for demonstration
 const mockUsers: User[] = [
-  { id: '1', name: 'Administrator', role: 'owner', email: 'admin@gmail.com' },
+  { id: '1', name: 'Administrator', role: 'admin', email: 'admin@gmail.com' },
   { id: '2', name: 'Staff Gudang', role: 'user', email: 'user@gudang.com' }
 ];
 
