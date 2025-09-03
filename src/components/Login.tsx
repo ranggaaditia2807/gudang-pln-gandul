@@ -16,7 +16,7 @@ const Login: React.FC = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (login(email, password)) {
       // Login successful
       setEmail('');
@@ -79,7 +79,7 @@ const Login: React.FC = () => {
               required
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
@@ -107,21 +107,12 @@ const Login: React.FC = () => {
             <Button
               variant="outline"
               className="w-full justify-start"
-              onClick={() => {
-                setEmail('admin@gmail.com');
-                setPassword('admingudang1');
-                if (login('admin@gmail.com', 'admingudang1')) {
-                  setError('');
-                  setTimeout(() => {
-                    navigate('/');
-                  }, 100);
-                }
-              }}
+              onClick={() => handleQuickLogin('admin@gmail.com')}
             >
               Login sebagai Administrator
             </Button>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={() => handleQuickLogin('user@gudang.com')}
             >
@@ -139,4 +130,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-
