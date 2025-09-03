@@ -25,7 +25,7 @@ const Login: React.FC = () => {
         navigate('/'); // Redirect to home page after login
       }, 100);
     } else {
-      setError('Email atau password salah. Gunakan "owner@gudang.com" atau "user@gudang.com" dengan password "password123"');
+      setError('Email atau password salah. Gunakan');
     }
   };
 
@@ -121,7 +121,6 @@ const Login: React.FC = () => {
         </div>
 
         <div className="mt-4 text-xs text-muted-foreground">
-          <p>Password untuk semua akun: password123</p>
         </div>
       </CardContent>
     </Card>
