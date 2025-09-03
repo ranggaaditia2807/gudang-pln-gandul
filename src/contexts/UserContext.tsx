@@ -21,7 +21,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Mock users for demonstration
 const mockUsers: User[] = [
-  { id: '1', name: 'Pemilik Gudang', role: 'owner', email: 'owner@gudang.com' },
+  { id: '1', name: 'Administrator', role: 'owner', email: 'admin@gmail.com' },
   { id: '2', name: 'Staff Gudang', role: 'user', email: 'user@gudang.com' }
 ];
 
