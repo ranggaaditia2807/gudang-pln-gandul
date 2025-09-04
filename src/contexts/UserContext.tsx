@@ -34,13 +34,12 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (savedUser) {
       try {
         const parsedUser = JSON.parse(savedUser);
-        // Clear old data with "owner" role
+        // Update old data with "owner" role to "admin"
         if (parsedUser.role === 'owner') {
-          localStorage.removeItem('user');
-          setUser(null);
-        } else {
-          setUser(parsedUser);
+          parsedUser.role = 'admin';
+          localStorage.setItem('user', JSON.stringify(parsedUser));
         }
+        setUser(parsedUser);
       } catch (error) {
         console.error('Error parsing saved user data:', error);
         localStorage.removeItem('user');
