@@ -51,7 +51,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = (email: string, password: string): boolean => {
     // Simple mock login - in real app, this would call an API
     const foundUser = mockUsers.find(u => u.email === email);
-    if (foundUser && password === 'password123') { // Mock password
+    if (foundUser && password === 'admingudang1') { // Mock password
       setUser(foundUser);
       // Save user to localStorage
       localStorage.setItem('user', JSON.stringify(foundUser));
