@@ -21,7 +21,7 @@ class GudangDebugger {
     
     // Test login dengan user mock
     const testUsers = [
-      { email: 'owner@gudang.com', password: 'password123', role: 'owner' },
+      { email: 'admin@gudang.com', password: 'admingudang1', role: 'admin' },
       { email: 'user@gudang.com', password: 'password123', role: 'user' }
     ];
 
@@ -108,7 +108,7 @@ class GudangDebugger {
     console.log(`🔧 Simulating login as ${userType}...`);
     
     const users = {
-      owner: { id: '1', name: 'Pemilik Gudang', role: 'owner', email: 'owner@gudang.com' },
+      admin: { id: '1', name: 'Pemilik Gudang', role: 'admin', email: 'admin@gmail.com' },
       user: { id: '2', name: 'Staff Gudang', role: 'user', email: 'user@gudang.com' }
     };
     
