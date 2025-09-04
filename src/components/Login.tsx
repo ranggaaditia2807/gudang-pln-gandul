@@ -31,8 +31,8 @@ const Login: React.FC = () => {
 
   const handleQuickLogin = (testEmail: string) => {
     setEmail(testEmail);
-    setPassword('password123');
-    if (login(testEmail, 'password123')) {
+    setPassword('admingudang1');
+    if (login(testEmail, 'admingudang1')) {
       setError('');
       setTimeout(() => {
         navigate('/'); // Redirect after quick login
