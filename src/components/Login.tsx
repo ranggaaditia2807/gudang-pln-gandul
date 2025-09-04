@@ -103,12 +103,12 @@ const Login: React.FC = () => {
 
         <div className="mt-6 pt-4 border-t">
           <div className="space-y-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full justify-start"
               onClick={() => handleQuickLogin('admin@gudang.com')}
             >
-              Login sebagai Pemilik (Owner)
+              Login sebagai Admin
             </Button>
             <Button 
               variant="outline" 
