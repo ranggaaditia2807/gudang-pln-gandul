@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Search, Package, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, Search, Package, AlertCircle, CheckCircle, Download } from "lucide-react";
 import { useState } from "react";
 import { useUser } from "@/contexts/UserContext";
+import * as XLSX from 'xlsx';
 
 const initialItems = [
   {
@@ -49,7 +50,7 @@ const initialItems = [
 
 export default function Warehouse() {
   const { hasPermission } = useUser();
-  const canEdit = hasPermission('owner');
+  const canEdit = hasPermission('admin');
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [items, setItems] = useState(initialItems);
@@ -116,6 +117,30 @@ export default function Warehouse() {
     setShowAddModal(false);
   };
 
+  const handleExportToExcel = () => {
+    const exportData = filteredItems.map(item => ({
+      'ID Barang': item.id,
+      'Nama Barang': item.name,
+      'Kategori': item.category,
+      'Stok': item.stock,
+      'Min. Stok': item.minStock,
+      'Lokasi': item.location,
+      'Status': item.status === 'good' ? 'Stok Baik' :
+                item.status === 'low' ? 'Stok Menipis' :
+                item.status === 'critical' ? 'Stok Kritis' : 'Normal'
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Data Barang');
+
+    // Generate filename with current date
+    const date = new Date().toISOString().split('T')[0];
+    const filename = `data-barang-gudang-${date}.xlsx`;
+
+    XLSX.writeFile(wb, filename);
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -125,12 +150,20 @@ export default function Warehouse() {
             Kelola inventaris barang PLN UPT Gandul
           </p>
         </div>
-        {canEdit && (
-          <Button onClick={handleAddClick}>
-            <Plus className="mr-2 h-4 w-4" />
-            Tambah Barang
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {canEdit && (
+            <>
+              <Button onClick={handleAddClick}>
+                <Plus className="mr-2 h-4 w-4" />
+                Tambah Barang
+              </Button>
+              <Button variant="outline" onClick={handleExportToExcel}>
+                <Download className="mr-2 h-4 w-4" />
+                Export Excel
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Search and Filter */}
