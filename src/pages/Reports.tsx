@@ -118,9 +118,9 @@ export default function Reports() {
 
       {/* Display Report Data */}
       {selectedReport && reportData && (
-        <div className="mt-6 p-4 border rounded bg-white shadow">
+        <div className="mt-6 p-4 border rounded bg-gray-50 shadow">
           <h2 className="text-xl font-semibold mb-4">Data Laporan: {selectedReport}</h2>
-          <pre className="whitespace-pre-wrap">{JSON.stringify(reportData, null, 2)}</pre>
+          <pre className="whitespace-pre-wrap text-sm text-gray-800">{JSON.stringify(reportData, null, 2)}</pre>
         </div>
       )}
 
