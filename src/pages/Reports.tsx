@@ -2,7 +2,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, BarChart3, Calendar, TrendingUp } from "lucide-react";
+import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus } from "lucide-react";
+import { useState } from "react";
+import { useWarehouse } from "@/contexts/WarehouseContext";
+import { useTransactions } from "@/contexts/TransactionContext";
+import { useToast } from "@/hooks/use-toast";
 
 const reportTypes = [
   {
@@ -36,6 +40,43 @@ const reportTypes = [
 ];
 
 export default function Reports() {
+  const { getInventoryReport, getTransactionReport, getMonthlyReport } = useTransactions();
+  const { stats } = useWarehouse();
+  const { toast } = useToast();
+
+  const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
+
+  const generateReport = (type: string) => {
+    setSelectedReport(type);
+    let data = null;
+    switch (type) {
+      case "inventory":
+        data = getInventoryReport();
+        break;
+      case "transactions":
+        data = getTransactionReport();
+        break;
+      case "monthly":
+        // For example, generate report for current month and year
+        const now = new Date();
+        data = getMonthlyReport((now.getMonth() + 1).toString(), now.getFullYear().toString());
+        break;
+      case "custom":
+        // Custom report logic here
+        data = null;
+        break;
+      default:
+        data = null;
+    }
+    setReportData(data);
+    toast({
+      title: "Laporan berhasil dibuat",
+      description: `Laporan tipe ${type} telah berhasil dibuat.`,
+      variant: "success"
+    });
+  };
+
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -45,7 +86,7 @@ export default function Reports() {
             Generate dan kelola laporan gudang
           </p>
         </div>
-        <Button>
+        <Button onClick={() => generateReport("custom")}>
           <Download className="mr-2 h-4 w-4" />
           Export Semua
         </Button>
@@ -56,7 +97,7 @@ export default function Reports() {
         {reportTypes.map((report) => {
           const IconComponent = report.icon;
           return (
-            <Card key={report.id} className="border-0 shadow-soft hover:shadow-medium transition-shadow cursor-pointer">
+            <Card key={report.id} className="border-0 shadow-soft hover:shadow-medium transition-shadow cursor-pointer" onClick={() => generateReport(report.id)}>
               <CardHeader className="text-center pb-4">
                 <div className={`mx-auto w-12 h-12 rounded-lg bg-secondary/20 flex items-center justify-center mb-3`}>
                   <IconComponent className={`h-6 w-6 ${report.color}`} />
@@ -65,7 +106,7 @@ export default function Reports() {
                 <CardDescription>{report.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                <Button className="w-full" variant="outline">
+                <Button className="w-full" variant="outline" onClick={() => generateReport(report.id)}>
                   <FileText className="mr-2 h-4 w-4" />
                   Generate Laporan
                 </Button>
@@ -74,6 +115,14 @@ export default function Reports() {
           );
         })}
       </div>
+
+      {/* Display Report Data */}
+      {selectedReport && reportData && (
+        <div className="mt-6 p-4 border rounded bg-white shadow">
+          <h2 className="text-xl font-semibold mb-4">Data Laporan: {selectedReport}</h2>
+          <pre className="whitespace-pre-wrap">{JSON.stringify(reportData, null, 2)}</pre>
+        </div>
+      )}
 
       {/* Recent Reports */}
       <Tabs defaultValue="recent" className="space-y-6">
