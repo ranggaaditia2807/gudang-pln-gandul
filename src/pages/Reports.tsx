@@ -48,33 +48,45 @@ export default function Reports() {
   const [reportData, setReportData] = useState<any>(null);
 
   const generateReport = (type: string) => {
-    setSelectedReport(type);
-    let data = null;
-    switch (type) {
-      case "inventory":
-        data = getInventoryReport();
-        break;
-      case "transactions":
-        data = getTransactionReport();
-        break;
-      case "monthly":
-        // For example, generate report for current month and year
-        const now = new Date();
-        data = getMonthlyReport((now.getMonth() + 1).toString(), now.getFullYear().toString());
-        break;
-      case "custom":
-        // Custom report logic here
-        data = null;
-        break;
-      default:
-        data = null;
+    try {
+      console.log("Generating report:", type);
+      setSelectedReport(type);
+      let data = null;
+      switch (type) {
+        case "inventory":
+          data = getInventoryReport();
+          console.log("Inventory report data:", data);
+          break;
+        case "transactions":
+          data = getTransactionReport();
+          console.log("Transaction report data:", data);
+          break;
+        case "monthly":
+          // For example, generate report for current month and year
+          const now = new Date();
+          data = getMonthlyReport((now.getMonth() + 1).toString(), now.getFullYear().toString());
+          console.log("Monthly report data:", data);
+          break;
+        case "custom":
+          // Custom report logic here
+          data = null;
+          break;
+        default:
+          data = null;
+      }
+      setReportData(data);
+      toast({
+        title: "Laporan berhasil dibuat",
+        description: `Laporan tipe ${type} telah berhasil dibuat.`,
+      });
+    } catch (error) {
+      console.error("Error generating report:", error);
+      toast({
+        title: "Error",
+        description: "Terjadi kesalahan saat membuat laporan",
+        variant: "destructive"
+      });
     }
-    setReportData(data);
-    toast({
-      title: "Laporan berhasil dibuat",
-      description: `Laporan tipe ${type} telah berhasil dibuat.`,
-      variant: "success"
-    });
   };
 
   return (
