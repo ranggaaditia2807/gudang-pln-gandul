@@ -1,11 +1,10 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWarehouse } from "@/contexts/WarehouseContext";
-import { useTransactions } from "@/contexts/TransactionContext";
+import { useTransactions, TransactionProvider } from "@/contexts/TransactionContext";
 import { useToast } from "@/hooks/use-toast";
 
 const reportTypes = [
@@ -40,12 +39,25 @@ const reportTypes = [
 ];
 
 export default function Reports() {
+  return (
+    <TransactionProvider>
+      <InnerReports />
+    </TransactionProvider>
+  );
+}
+
+function InnerReports() {
   const { getInventoryReport, getTransactionReport, getMonthlyReport } = useTransactions();
   const { stats } = useWarehouse();
   const { toast } = useToast();
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [reportData, setReportData] = useState<any>(null);
+
+  // Auto-generate inventory report on component mount
+  useEffect(() => {
+    generateReport("inventory");
+  }, []);
 
   const generateReport = (type: string) => {
     try {
@@ -69,7 +81,12 @@ export default function Reports() {
           break;
         case "custom":
           // Custom report logic here
-          data = null;
+          // For demonstration, generate all reports combined
+          const inventory = getInventoryReport();
+          const transactions = getTransactionReport();
+          const monthly = getMonthlyReport((new Date().getMonth() + 1).toString(), new Date().getFullYear().toString());
+          data = { inventory, transactions, monthly };
+          console.log("Custom report data:", data);
           break;
         default:
           data = null;
