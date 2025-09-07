@@ -39,11 +39,7 @@ const reportTypes = [
 ];
 
 export default function Reports() {
-  return (
-    <TransactionProvider>
-      <InnerReports />
-    </TransactionProvider>
-  );
+  return <InnerReports />;
 }
 
 function InnerReports() {
