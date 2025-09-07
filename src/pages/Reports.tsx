@@ -54,11 +54,6 @@ function InnerReports() {
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [reportData, setReportData] = useState<any>(null);
 
-  // Auto-generate inventory report on component mount
-  useEffect(() => {
-    generateReport("inventory");
-  }, []);
-
   const generateReport = (type: string) => {
     try {
       console.log("Generating report:", type);
@@ -105,6 +100,11 @@ function InnerReports() {
       });
     }
   };
+
+  // Auto-generate inventory report on component mount
+  useEffect(() => {
+    generateReport("inventory");
+  }, []);
 
   return (
     <div className="space-y-8">
