@@ -47,7 +47,7 @@ export default function Reports() {
 }
 
 function InnerReports() {
-  const { getInventoryReport, getTransactionReport, getMonthlyReport } = useTransactions();
+  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory } = useTransactions();
   const { stats } = useWarehouse();
   const { toast } = useToast();
 
@@ -101,10 +101,12 @@ function InnerReports() {
     }
   };
 
-  // Auto-generate inventory report on component mount
+  // Auto-generate inventory report when inventory data is available
   useEffect(() => {
-    generateReport("inventory");
-  }, []);
+    if (inventory && inventory.length > 0) {
+      generateReport("inventory");
+    }
+  }, [inventory]);
 
   return (
     <div className="space-y-8">
