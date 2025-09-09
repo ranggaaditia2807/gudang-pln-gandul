@@ -39,10 +39,6 @@ const reportTypes = [
 ];
 
 export default function Reports() {
-  return <InnerReports />;
-}
-
-function InnerReports() {
   const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory } = useTransactions();
   const { stats } = useWarehouse();
   const { toast } = useToast();
@@ -149,10 +145,134 @@ function InnerReports() {
 
       {/* Display Report Data */}
       {selectedReport && reportData && (
-        <div className="mt-6 p-4 border rounded bg-gray-50 shadow">
-          <h2 className="text-xl font-semibold mb-4">Data Laporan: {selectedReport}</h2>
-          <pre className="whitespace-pre-wrap text-sm text-gray-800">{JSON.stringify(reportData, null, 2)}</pre>
-        </div>
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              Data Laporan: {selectedReport.charAt(0).toUpperCase() + selectedReport.slice(1)}
+            </CardTitle>
+            <CardDescription>
+              {selectedReport === 'inventory' && 'Ringkasan stok barang terkini'}
+              {selectedReport === 'transactions' && 'Riwayat transaksi barang masuk dan keluar'}
+              {selectedReport === 'monthly' && 'Ringkasan aktivitas bulanan'}
+              {selectedReport === 'custom' && 'Laporan gabungan semua data'}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {selectedReport === 'inventory' && Array.isArray(reportData) && reportData.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-medium">Inventaris Barang:</h3>
+                  {reportData.map((item: any, index: number) => (
+                    <div key={index} className="p-3 bg-secondary/20 rounded-lg">
+                      <div className="font-medium">{item.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        Stok: {item.currentStock} | Masuk: {item.totalIn} | Keluar: {item.totalOut}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedReport === 'transactions' && Array.isArray(reportData) && reportData.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="font-medium">Riwayat Transaksi:</h3>
+                  {reportData.map((transaction: any, index: number) => (
+                    <div key={index} className="p-3 bg-secondary/20 rounded-lg">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <div className="font-medium">{transaction.item}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {transaction.type === 'in' ? 'Masuk' : 'Keluar'} | {transaction.quantity} unit
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {transaction.operator} - {transaction.date}
+                          </div>
+                        </div>
+                        <div className={`px-2 py-1 rounded text-xs ${
+                          transaction.type === 'in' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.type === 'in' ? '+' : '-'}{transaction.quantity}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {selectedReport === 'monthly' && reportData && typeof reportData === 'object' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{(reportData as any).totalIn}</div>
+                      <div className="text-sm text-green-600">Barang Masuk</div>
+                    </div>
+                    <div className="p-4 bg-red-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">{(reportData as any).totalOut}</div>
+                      <div className="text-sm text-red-600">Barang Keluar</div>
+                    </div>
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{(reportData as any).netChange}</div>
+                      <div className="text-sm text-blue-600">Perubahan Net</div>
+                    </div>
+                  </div>
+                  {(reportData as any).transactions && (reportData as any).transactions.length > 0 && (
+                    <div className="space-y-2">
+                      <h3 className="font-medium">Transaksi Bulan Ini:</h3>
+                      {(reportData as any).transactions.map((transaction: any, index: number) => (
+                        <div key={index} className="p-3 bg-secondary/20 rounded-lg">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="font-medium">{transaction.item}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {transaction.type === 'in' ? 'Masuk' : 'Keluar'} | {transaction.quantity} unit
+                              </div>
+                            </div>
+                            <div className={`px-2 py-1 rounded text-xs ${
+                              transaction.type === 'in' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                              {transaction.type === 'in' ? '+' : '-'}{transaction.quantity}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {selectedReport === 'custom' && reportData && typeof reportData === 'object' && (
+                <div className="space-y-6">
+                  <div className="text-sm text-muted-foreground">
+                    Laporan gabungan menampilkan semua data inventaris, transaksi, dan laporan bulanan
+                  </div>
+                  <pre className="whitespace-pre-wrap text-xs bg-secondary/20 p-4 rounded overflow-auto max-h-96">
+                    {JSON.stringify(reportData, null, 2)}
+                  </pre>
+                </div>
+              )}
+
+              {(!Array.isArray(reportData) && typeof reportData !== 'object') && (
+                <div className="text-center py-8 text-muted-foreground">
+                  Tidak ada data untuk ditampilkan
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* No Report Selected Message */}
+      {!selectedReport && (
+        <Card className="mt-6">
+          <CardContent className="text-center py-12">
+            <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Pilih Tipe Laporan</h3>
+            <p className="text-muted-foreground">
+              Klik salah satu kartu laporan di atas untuk melihat data laporan
+            </p>
+          </CardContent>
+        </Card>
       )}
 
       {/* Recent Reports */}
