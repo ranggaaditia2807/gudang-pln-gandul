@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useWarehouse } from "@/contexts/WarehouseContext";
 import { useTransactions, TransactionProvider } from "@/contexts/TransactionContext";
 import { useToast } from "@/hooks/use-toast";
@@ -48,29 +48,32 @@ function InnerReports() {
   const { toast } = useToast();
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<any>(null);
+  const [reportData, setReportData] = useState<Record<string, unknown> | null>(null);
 
-  const generateReport = (type: string) => {
+  const generateReport = useCallback((type: string) => {
     try {
       console.log("Generating report:", type);
       setSelectedReport(type);
       let data = null;
       switch (type) {
-        case "inventory":
+        case "inventory": {
           data = getInventoryReport();
           console.log("Inventory report data:", data);
           break;
-        case "transactions":
+        }
+        case "transactions": {
           data = getTransactionReport();
           console.log("Transaction report data:", data);
           break;
-        case "monthly":
+        }
+        case "monthly": {
           // For example, generate report for current month and year
           const now = new Date();
           data = getMonthlyReport((now.getMonth() + 1).toString(), now.getFullYear().toString());
           console.log("Monthly report data:", data);
           break;
-        case "custom":
+        }
+        case "custom": {
           // Custom report logic here
           // For demonstration, generate all reports combined
           const inventory = getInventoryReport();
@@ -79,6 +82,7 @@ function InnerReports() {
           data = { inventory, transactions, monthly };
           console.log("Custom report data:", data);
           break;
+        }
         default:
           data = null;
       }
@@ -95,14 +99,14 @@ function InnerReports() {
         variant: "destructive"
       });
     }
-  };
+  }, [getInventoryReport, getTransactionReport, getMonthlyReport, toast]);
 
   // Auto-generate inventory report when inventory data is available
   useEffect(() => {
     if (inventory && inventory.length > 0) {
       generateReport("inventory");
     }
-  }, [inventory]);
+  }, [inventory, generateReport]);
 
   return (
     <div className="space-y-8">
