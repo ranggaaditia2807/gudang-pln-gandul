@@ -1,10 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus } from "lucide-react";
+import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useWarehouse } from "@/contexts/WarehouseContext";
-import { useTransactions, TransactionProvider } from "@/contexts/TransactionContext";
+import { useTransactions } from "@/contexts/TransactionContext";
 import { useToast } from "@/hooks/use-toast";
 
 const reportTypes = [
@@ -18,12 +18,12 @@ const reportTypes = [
   {
     id: "transactions",
     title: "Laporan Transaksi",
-    description: "Riwayat barang masuk dan keluar", 
+    description: "Riwayat barang masuk dan keluar",
     icon: TrendingUp,
     color: "text-success"
   },
   {
-    id: "monthly", 
+    id: "monthly",
     title: "Laporan Bulanan",
     description: "Ringkasan aktivitas per bulan",
     icon: Calendar,
@@ -31,7 +31,7 @@ const reportTypes = [
   },
   {
     id: "custom",
-    title: "Laporan Kustom", 
+    title: "Laporan Kustom",
     description: "Buat laporan sesuai kebutuhan",
     icon: FileText,
     color: "text-accent"
@@ -39,15 +39,24 @@ const reportTypes = [
 ];
 
 export default function Reports() {
-  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory } = useTransactions();
+  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory, transactions } = useTransactions();
   const { stats } = useWarehouse();
   const { toast } = useToast();
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
   const [reportData, setReportData] = useState<Record<string, unknown> | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Debug logging
+  console.log("Reports component rendered");
+  console.log("Inventory data:", inventory);
+  console.log("Inventory length:", inventory?.length);
+  console.log("Transactions data:", transactions);
+  console.log("Transactions length:", transactions?.length);
 
   const generateReport = useCallback((type: string) => {
     try {
+      setIsLoading(true);
       console.log("Generating report:", type);
       setSelectedReport(type);
       let data = null;
@@ -94,15 +103,36 @@ export default function Reports() {
         description: "Terjadi kesalahan saat membuat laporan",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   }, [getInventoryReport, getTransactionReport, getMonthlyReport, toast]);
 
   // Auto-generate inventory report when inventory data is available
   useEffect(() => {
+    console.log("useEffect triggered - inventory changed:", inventory);
     if (inventory && inventory.length > 0) {
+      console.log("Auto-generating inventory report");
       generateReport("inventory");
+    } else {
+      console.log("No inventory data available yet");
     }
   }, [inventory, generateReport]);
+
+  // Manual trigger for testing
+  useEffect(() => {
+    console.log("useEffect triggered - transactions changed:", transactions);
+    if (transactions && transactions.length > 0 && (!inventory || inventory.length === 0)) {
+      console.log("Transactions loaded, but no inventory yet - forcing inventory generation");
+      // Force generate inventory report if we have transactions but no inventory
+      const data = getInventoryReport();
+      if (data && data.length > 0) {
+        console.log("Forced inventory generation:", data);
+        setSelectedReport("inventory");
+        setReportData(data);
+      }
+    }
+  }, [transactions, inventory, getInventoryReport]);
 
   return (
     <div className="space-y-8">
@@ -119,6 +149,21 @@ export default function Reports() {
         </Button>
       </div>
 
+      {/* Debug Info */}
+      <Card className="border-orange-200 bg-orange-50">
+        <CardHeader>
+          <CardTitle className="text-orange-800">Debug Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm space-y-1">
+            <p><strong>Inventory Items:</strong> {inventory?.length || 0}</p>
+            <p><strong>Transactions:</strong> {transactions?.length || 0}</p>
+            <p><strong>Selected Report:</strong> {selectedReport || "None"}</p>
+            <p><strong>Report Data:</strong> {reportData ? "Available" : "None"}</p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Report Types Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {reportTypes.map((report) => {
@@ -133,8 +178,12 @@ export default function Reports() {
                 <CardDescription>{report.description}</CardDescription>
               </CardHeader>
               <CardContent className="pt-0">
-                <Button className="w-full" variant="outline" onClick={() => generateReport(report.id)}>
-                  <FileText className="mr-2 h-4 w-4" />
+                <Button className="w-full" variant="outline" onClick={() => generateReport(report.id)} disabled={isLoading}>
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileText className="mr-2 h-4 w-4" />
+                  )}
                   Generate Laporan
                 </Button>
               </CardContent>

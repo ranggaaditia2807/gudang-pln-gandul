@@ -9,46 +9,50 @@ import NotFound from "./pages/NotFound";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import { Toaster } from "@/components/ui/toaster";
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={
-        <ProtectedRoute>
+    <>
+      <Routes>
+        <Route path="/" element={
+          <ProtectedRoute>
+            <Layout>
+              <Home />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/transactions" element={
           <Layout>
-            <Home />
+            <Transactions />
           </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <Layout>
-            <Dashboard />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/transactions" element={
-        <Layout>
-          <Transactions />
-        </Layout>
-      } />
-      <Route path="/reports" element={
-        <ProtectedRoute>
-          <Layout>
-            <Reports />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/warehouse" element={
-        <ProtectedRoute>
-          <Layout>
-            <Warehouse />
-          </Layout>
-        </ProtectedRoute>
-      } />
-      <Route path="/login" element={<Login />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        } />
+        <Route path="/reports" element={
+          <ProtectedRoute>
+            <Layout>
+              <Reports />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/warehouse" element={
+          <ProtectedRoute>
+            <Layout>
+              <Warehouse />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Toaster />
+    </>
   );
 };
 
