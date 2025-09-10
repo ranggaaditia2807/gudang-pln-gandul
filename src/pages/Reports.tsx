@@ -4,8 +4,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useWarehouse } from "@/contexts/WarehouseContext";
-import { useTransactions } from "@/contexts/TransactionContext";
 import { useToast } from "@/hooks/use-toast";
+import React from "react";
+
+let useTransactionsSafe;
+try {
+  // Try to import useTransactions normally
+  // This will throw if used outside provider
+  // We wrap in try-catch to handle error gracefully
+  // eslint-disable-next-line
+  useTransactionsSafe = require("@/contexts/TransactionContext").useTransactions;
+} catch (e) {
+  useTransactionsSafe = () => {
+    throw new Error("useTransactions must be used within a TransactionProvider. Pastikan aplikasi dibungkus dengan TransactionProvider.");
+  };
+}
 
 const reportTypes = [
   {
@@ -39,7 +52,19 @@ const reportTypes = [
 ];
 
 export default function Reports() {
-  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory, transactions } = useTransactions();
+  let transactionsContext;
+  try {
+    transactionsContext = useTransactionsSafe();
+  } catch (error) {
+    return (
+      <div className="p-4 bg-red-100 text-red-800 rounded">
+        <h2>Error</h2>
+        <p>{error.message}</p>
+      </div>
+    );
+  }
+
+  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory, transactions } = transactionsContext;
   const { stats } = useWarehouse();
   const { toast } = useToast();
 

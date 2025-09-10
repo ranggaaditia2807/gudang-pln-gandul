@@ -1,41 +1,28 @@
-# Gudang PLN Warehouse Management - TODO
+# TODO: Perbaikan Halaman Laporan (Reports)
 
-## ✅ Completed Tasks
+## Masalah yang Ditemukan
+- Halaman laporan tidak dapat diakses dengan baik.
+- Tidak ada loading state saat laporan sedang diproses.
+- Penanganan error pada laporan kurang baik.
+- Data laporan kadang tidak terinisialisasi dengan benar.
+- Tampilan data laporan kurang sesuai untuk beberapa tipe laporan.
 
-### Warehouse Page Enhancements
-- [x] Update permission check from 'owner' to 'admin'
-- [x] Install xlsx library for Excel export
-- [x] Add export to Excel functionality
-- [x] Add Export Excel button for admin users
-- [x] Ensure user role is readonly (no edit/add permissions)
+## Rencana Perbaikan
+1. Tambahkan loading state di komponen Reports.tsx untuk menandakan proses generate laporan.
+2. Tambahkan error handling di Reports.tsx untuk menangani kegagalan generate laporan.
+3. Pastikan data transaksi dan inventaris sudah terinisialisasi sebelum render laporan.
+4. Perbaiki logika tampilan data untuk tipe laporan: inventory, transactions, monthly, custom.
+5. Lakukan testing menyeluruh untuk semua tipe laporan.
+6. Verifikasi tidak ada error di console dan UI berjalan lancar.
 
-### Export Features
-- [x] Export filtered items to Excel
-- [x] Include all relevant fields: ID, Name, Category, Stock, Min Stock, Location, Status
-- [x] Generate filename with current date
-- [x] Map status values to readable Indonesian text
+## File yang Akan Diedit
+- src/pages/Reports.tsx
+- src/contexts/TransactionContext.tsx (jika perlu perbaikan inisialisasi data)
 
-## 🔄 Current Status
-- Warehouse page now properly uses admin permissions
-- Admin users can export warehouse data to Excel
-- User role has readonly access (no edit/add buttons)
-- Export includes current filtered results
-
-## 📋 Future Enhancements (Optional)
-- [ ] Add edit functionality for admin users
-- [ ] Add delete functionality for admin users
-- [ ] Integrate with WarehouseContext instead of local state
-- [ ] Add more export formats (PDF, CSV)
-- [ ] Add bulk import from Excel
-- [ ] Add stock alerts and notifications
-- [ ] Add item details modal
-- [ ] Add search and filter persistence
-- [ ] Add pagination for large datasets
-
-## 🐛 Known Issues
-- None currently identified
-
-## 📝 Notes
-- Permission system now correctly uses 'admin' role
-- Export functionality works with current filtered data
-- UI is responsive and follows existing design patterns
+## Testing
+- Test generate laporan inventaris.
+- Test generate laporan transaksi.
+- Test generate laporan bulanan.
+- Test generate laporan kustom.
+- Pastikan tidak ada error di console.
+- Pastikan UI responsif dan user friendly.
