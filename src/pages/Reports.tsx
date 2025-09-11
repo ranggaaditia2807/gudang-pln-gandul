@@ -45,7 +45,7 @@ export default function Reports() {
   const { toast } = useToast();
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<unknown>(null);
+  const [reportData, setReportData] = useState<Record<string, unknown> | null>(null);
 
   const generateReport = (type: string) => {
     setSelectedReport(type);
