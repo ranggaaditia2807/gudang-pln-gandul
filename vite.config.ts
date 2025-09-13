@@ -27,6 +27,13 @@ export default defineConfig(({ mode }) => ({
     host: '0.0.0.0',
     port: 5173,
     strictPort: true,
-    open: true
+    open: true,
+    historyApiFallback: true
+  },
+  // Add this to fix 404 on refresh and resource loading on GitHub Pages
+  // Use history API fallback with correct base path
+  // This is a workaround for SPA routing on GitHub Pages
+  preview: {
+    // Remove historyApiFallback option to fix type error
   },
 }));

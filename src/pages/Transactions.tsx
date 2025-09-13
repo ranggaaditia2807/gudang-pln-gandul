@@ -6,48 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, ArrowUp, ArrowDown, Calendar } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
-
-const sampleTransactions = [
-  {
-    id: "TXN001",
-    type: "in",
-    item: "Kabel XLPE 150mm", 
-    quantity: 20,
-    date: "2024-01-15",
-    operator: "Ahmad Rizki",
-    notes: "Pengadaan rutin Q1"
-  },
-  {
-    id: "TXN002", 
-    type: "out",
-    item: "Isolator Keramik 20kV",
-    quantity: 5,
-    date: "2024-01-14",
-    operator: "Siti Nurhaliza",
-    notes: "Proyek Gardu Induk Cibinong"
-  },
-  {
-    id: "TXN003",
-    type: "in", 
-    item: "Trafo Distribusi 400kVA",
-    quantity: 2,
-    date: "2024-01-13",
-    operator: "Budi Santoso",
-    notes: "Pengadaan khusus"
-  },
-  {
-    id: "TXN004",
-    type: "out",
-    item: "Panel Distribusi 20kV", 
-    quantity: 3,
-    date: "2024-01-12",
-    operator: "Maya Sari",
-    notes: "Maintenance rutin"
-  }
-];
+import { useTransactions } from "@/contexts/TransactionContext";
 
 export default function Transactions() {
   const { user, hasPermission } = useUser();
+  const { transactions } = useTransactions();
   const canEdit = user && hasPermission('owner');
 
   const getTransactionIcon = (type: string) => {
@@ -138,7 +101,7 @@ export default function Transactions() {
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
-          {sampleTransactions.map((transaction) => (
+          {transactions.map((transaction) => (
             <Card key={transaction.id} className="border-0 shadow-soft">
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
@@ -173,7 +136,7 @@ export default function Transactions() {
         </TabsContent>
 
         <TabsContent value="in" className="space-y-4">
-          {sampleTransactions
+          {transactions
             .filter(t => t.type === "in")
             .map((transaction) => (
               <Card key={transaction.id} className="border-0 shadow-soft">
@@ -210,7 +173,7 @@ export default function Transactions() {
         </TabsContent>
 
         <TabsContent value="out" className="space-y-4">
-          {sampleTransactions
+          {transactions
             .filter(t => t.type === "out")
             .map((transaction) => (
               <Card key={transaction.id} className="border-0 shadow-soft">
