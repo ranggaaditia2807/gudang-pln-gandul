@@ -4,21 +4,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Download, FileText, BarChart3, Calendar, TrendingUp, Plus, Loader2 } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useWarehouse } from "@/contexts/WarehouseContext";
+import { useTransactions } from "@/contexts/TransactionContext";
 import { useToast } from "@/hooks/use-toast";
 import React from "react";
-
-let useTransactionsSafe;
-try {
-  // Try to import useTransactions normally
-  // This will throw if used outside provider
-  // We wrap in try-catch to handle error gracefully
-  // eslint-disable-next-line
-  useTransactionsSafe = require("@/contexts/TransactionContext").useTransactions;
-} catch (e) {
-  useTransactionsSafe = () => {
-    throw new Error("useTransactions must be used within a TransactionProvider. Pastikan aplikasi dibungkus dengan TransactionProvider.");
-  };
-}
 
 const reportTypes = [
   {
@@ -52,25 +40,12 @@ const reportTypes = [
 ];
 
 export default function Reports() {
-  let transactionsContext;
-  try {
-    transactionsContext = useTransactionsSafe();
-  } catch (error) {
-    return (
-      <div className="p-4 bg-red-100 text-red-800 rounded">
-        <h2>Error</h2>
-        <p>{error.message}</p>
-        <p>Pastikan aplikasi dibungkus dengan <code>TransactionProvider</code> agar laporan dapat diakses.</p>
-      </div>
-    );
-  }
-
-  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory, transactions } = transactionsContext;
+  const { getInventoryReport, getTransactionReport, getMonthlyReport, inventory, transactions } = useTransactions();
   const { stats } = useWarehouse();
   const { toast } = useToast();
 
   const [selectedReport, setSelectedReport] = useState<string | null>(null);
-  const [reportData, setReportData] = useState<Record<string, unknown> | null>(null);
+  const [reportData, setReportData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // Debug logging
@@ -98,15 +73,12 @@ export default function Reports() {
           break;
         }
         case "monthly": {
-          // For example, generate report for current month and year
           const now = new Date();
           data = getMonthlyReport((now.getMonth() + 1).toString(), now.getFullYear().toString());
           console.log("Monthly report data:", data);
           break;
         }
         case "custom": {
-          // Custom report logic here
-          // For demonstration, generate all reports combined
           const inventory = getInventoryReport();
           const transactions = getTransactionReport();
           const monthly = getMonthlyReport((new Date().getMonth() + 1).toString(), new Date().getFullYear().toString());
@@ -134,7 +106,14 @@ export default function Reports() {
     }
   }, [getInventoryReport, getTransactionReport, getMonthlyReport, toast]);
 
-  // Auto-generate inventory report when inventory data is available
+  // New useEffect to auto-generate inventory report on mount if inventory exists
+  useEffect(() => {
+    if (inventory && inventory.length > 0 && !selectedReport) {
+      console.log("Initial load: auto-generating inventory report");
+      generateReport("inventory");
+    }
+  }, [inventory, selectedReport, generateReport]);
+
   useEffect(() => {
     console.log("useEffect triggered - inventory changed:", inventory);
     if (inventory && inventory.length > 0) {
@@ -145,12 +124,10 @@ export default function Reports() {
     }
   }, [inventory, generateReport]);
 
-  // Manual trigger for testing
   useEffect(() => {
     console.log("useEffect triggered - transactions changed:", transactions);
     if (transactions && transactions.length > 0 && (!inventory || inventory.length === 0)) {
       console.log("Transactions loaded, but no inventory yet - forcing inventory generation");
-      // Force generate inventory report if we have transactions but no inventory
       const data = getInventoryReport();
       if (data && data.length > 0) {
         console.log("Forced inventory generation:", data);
@@ -169,13 +146,16 @@ export default function Reports() {
             Generate dan kelola laporan gudang
           </p>
         </div>
-        <Button onClick={() => generateReport("custom")}>
-          <Download className="mr-2 h-4 w-4" />
+        <Button onClick={() => generateReport("custom")} disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="mr-2 h-4 w-4" />
+          )}
           Export Semua
         </Button>
       </div>
 
-      {/* Debug Info */}
       <Card className="border-orange-200 bg-orange-50">
         <CardHeader>
           <CardTitle className="text-orange-800">Debug Information</CardTitle>
@@ -190,7 +170,6 @@ export default function Reports() {
         </CardContent>
       </Card>
 
-      {/* Report Types Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {reportTypes.map((report) => {
           const IconComponent = report.icon;
@@ -218,7 +197,6 @@ export default function Reports() {
         })}
       </div>
 
-      {/* Display Report Data */}
       {selectedReport && reportData && (
         <Card className="mt-6">
           <CardHeader>
@@ -337,7 +315,6 @@ export default function Reports() {
         </Card>
       )}
 
-      {/* No Report Selected Message */}
       {!selectedReport && (
         <Card className="mt-6">
           <CardContent className="text-center py-12">
@@ -350,7 +327,6 @@ export default function Reports() {
         </Card>
       )}
 
-      {/* Recent Reports */}
       <Tabs defaultValue="recent" className="space-y-6">
         <TabsList>
           <TabsTrigger value="recent">Laporan Terbaru</TabsTrigger>
